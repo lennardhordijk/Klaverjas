@@ -1,7 +1,6 @@
-from email import header
 from rounds import Round
 from deck import Deck
-from Played_card_Prediction2 import Main
+from Transformation import Main
 
 import pandas as pd
 import random
