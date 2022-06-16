@@ -34,3 +34,9 @@ def meld_points(trick, trump_suit):
         if meld <= set(trick):
             return points + 20
     return points
+
+def check_possible_street(center, card):
+    for meld in meld_20:
+        if meld <= set(center):
+            return 1
+    return 0

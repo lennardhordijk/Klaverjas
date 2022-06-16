@@ -25,6 +25,15 @@ class Trick:
                 highest = card        
         return (self.starting_player + self.cards.index(highest)) % 4
 
+    def highest_card(self, trump_suit):
+        highest = self.cards[0] 
+        for card in self.cards:
+            if (card.order(trump_suit) > highest.order(trump_suit) and
+                (card.suit == self.leading_suit() or
+                 card.suit == trump_suit)):
+                highest = card 
+        return highest
+
     def to_play(self):
         return (self.starting_player + len(self.cards)) % 4
 
