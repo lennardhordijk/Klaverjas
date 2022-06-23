@@ -49,9 +49,6 @@ class Game:
         self.cards[player].remove(played_card)
         return played_card
 
-
-
-
 wins = 0
 
 overall_start_time = time.time()
@@ -60,7 +57,7 @@ print('start')
 for i in range(500):
     game = Game()
     game.play_game()
-    if game.score[0] > game.score[1]:
+    if game.score[1] > game.score[0]:
         wins += 1
     if i%10 == 0:
         print(i)
