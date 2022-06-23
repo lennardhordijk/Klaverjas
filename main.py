@@ -1,6 +1,5 @@
 from rounds import Round
 from deck import Deck
-from Transformation import get_best_card
 
 import random
 import time
@@ -25,7 +24,7 @@ class Game:
         self.deal()
     
     def play_game(self):
-        for no_rounds in range(1):
+        for no_rounds in range(16):
             self.start_new_round()
             round = self.rounds[-1]
             starting_player = round.starting_player
@@ -41,13 +40,74 @@ class Game:
             
     def get_card(self, player):
         if player == 1 or player == 3:
-            played_card = get_best_card(self.rounds[-1], player, self.cards[player])
+            played_card = self.get_card_good_player(player, self.rounds[-1])
         else:
             round = self.rounds[-1]
             moves = round.legal_moves(self.cards[player], player)
             played_card = random.choice(moves)
         self.cards[player].remove(played_card)
         return played_card
+
+    def get_card_good_player(self, player, round):
+        trick = round.tricks[-1]
+        if len(trick.cards) == 0:
+            for card in self.cards[player]:
+                if card.order(round.trump_suit) == 7 or card.order(round.trump_suit) == 15:
+                    return card
+            lowest_points = 21
+            for card in self.cards[player]:
+                if card.points(round.trump_suit) < lowest_points:
+                    played_card = card
+                    lowest_points = card.points(round.trump_suit)
+            return played_card
+
+        elif len(trick.cards) == 1:
+            for card in self.cards[player]:
+                if card.order(round.trump_suit) == 7 or card.order(round.trump_suit) == 15:
+                    return card
+
+            lowest_points = 21
+            for card in self.cards[player]:
+                if card.points(round.trump_suit) < lowest_points:
+                    played_card = card
+                    lowest_points = card.points(round.trump_suit)
+            return played_card
+
+        elif len(trick.cards) == 2:
+            if trick.cards[0].order(round.trump_suit) == 7 or trick.cards[0].order(round.trump_suit) == 15:
+                highest_points = -1
+                for card in self.cards[player]:
+                    if card.points(round.trump_suit) > highest_points:
+                        played_card = card
+                        highest_points = card.points(round.trump_suit)
+                return played_card
+
+            for card in self.cards[player]:
+                if card.order(round.trump_suit) == 7 or card.order(round.trump_suit) == 15:
+                    return card
+
+            lowest_points = 21
+            for card in self.cards[player]:
+                if card.points(round.trump_suit) < lowest_points:
+                    played_card = card
+                    lowest_points = card.points(round.trump_suit)
+            return played_card
+
+        else:
+            if trick.winner(round.trump_suit) %2 == 1:
+                highest_points = -1
+                for card in self.cards[player]:
+                    if card.points(round.trump_suit) > highest_points:
+                        played_card = card
+                        highest_points = card.points(round.trump_suit)
+                return played_card
+            else:
+                lowest_points = 21
+                for card in self.cards[player]:
+                    if card.points(round.trump_suit) < lowest_points:
+                        played_card = card
+                        lowest_points = card.points(round.trump_suit)
+                return played_card
 
 wins = 0
 
@@ -59,6 +119,7 @@ for i in range(500):
     game.play_game()
     if game.score[1] > game.score[0]:
         wins += 1
+        
     if i%10 == 0:
         print(i)
 
