@@ -29,6 +29,8 @@ class Game:
             round = self.rounds[-1]
             starting_player = round.starting_player
             for i in range(8):
+                if round.tricks:
+                    starting_player = round.tricks[-1].starting_player
                 for j in range(4):
                     current_player = (j + starting_player) % 4
                     played_card = self.get_card(current_player)
