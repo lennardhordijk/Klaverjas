@@ -8,6 +8,11 @@ class Trick:
 
     def add_card(self, card):
         self.cards.append(card)
+        # print(card.suit + str(card.value))
+        cards = []
+        # for card in self.cards:
+        #     cards.append(card.suit + str(card.value))
+        # print(cards)
 
     def is_complete(self):
         return len(self.cards) == 4

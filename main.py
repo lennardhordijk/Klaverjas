@@ -56,13 +56,13 @@ wins = 0
 overall_start_time = time.time()
 print('start')
 
-for i in range(500):
+for i in range(100):
+    print(i)
     game = Game()
     game.play_game()
     if game.score[1] > game.score[0]:
         wins += 1
-    if i%10 == 0:
-        print(i)
+    
 
     
 print('average time:', (time.time() - overall_start_time) / 500)       

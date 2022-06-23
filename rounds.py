@@ -69,6 +69,7 @@ class Round:
             self.cardsplayed2.append(card)
         else:
             self.cardsplayed3.append(card)
+        
 
     def to_play(self):
         return self.tricks[-1].to_play()

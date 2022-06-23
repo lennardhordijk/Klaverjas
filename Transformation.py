@@ -221,7 +221,7 @@ def get_best_card(round, player, hand):
     is_highest = []
     is_second_highest = []
     lowest_value = 21
-    highest_value = 0
+    highest_value = -1
     creates_street_all = []
     for index, card in enumerate(legal_moves):
         if card in higher_cards:
@@ -264,7 +264,12 @@ def get_best_card(round, player, hand):
     dataframe['Is_highest_value'] = is_highest_value
     dataframe['Creates_street'] = creates_street_all
     dataframe.drop('index', inplace=True, axis=1)
-    dataframe = dataframe[['empty_center', 'trump_asked', 'other_suit_asked', 'Still_in_game', 'Is_second_highest_suit', 'Is_highest_suit', 'Has_second_highest_suit', 'Has_highest_suit', 'Player1_has_suit', 'Player2_has_suit', 'Player3_has_suit', 'Player1_has_trump', 'Player2_has_trump','Player3_has_trump', 'Is_higher', 'Has_higher', 'No_playable_cards', 'Is_lowest_value', 'Is_highest_value', 'Teammate_winning', 'Teammate_played', 'Can_create_street', 'Creates_street', 'p_none', 'p_s', 'p_t', 'first_turn', 'second_turn', 'third_turn', 'last_turn']]
+    dataframe = dataframe[['empty_center', 'trump_asked', 'other_suit_asked', 'Still_in_game', 'Is_second_highest_suit', 'Is_highest_suit', 
+    'Has_second_highest_suit', 'Has_highest_suit', 'Player1_has_suit', 'Player2_has_suit', 'Player3_has_suit', 'Player1_has_trump', 
+    'Player2_has_trump','Player3_has_trump', 'Is_higher', 'Has_higher', 'No_playable_cards', 'Is_lowest_value', 'Is_highest_value', 
+    'Teammate_winning', 'Teammate_played', 'Can_create_street', 'Creates_street', 'p_none', 'p_s', 'p_t', 'first_turn', 'second_turn', 
+    'third_turn', 'last_turn']]
+
     predictions = random_forest.predict_proba(dataframe)
     highest_prob = 0
     for index, prediction in enumerate(predictions):
@@ -272,13 +277,4 @@ def get_best_card(round, player, hand):
             highest_prob = prediction[1]
             best_card = legal_moves[index]
     return best_card
-
-
-
-
-
-
-
-
-
 
