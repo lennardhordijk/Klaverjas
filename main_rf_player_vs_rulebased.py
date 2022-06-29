@@ -6,9 +6,10 @@ import random
 import time
 
 class Game:
-    def __init__(self):
+    def __init__(self, starting_player):
         self.rounds = []
         self.score = [0,0]
+        self.starting_player = starting_player
 
     def deal(self):
         deck = Deck()
@@ -21,11 +22,11 @@ class Game:
             if not last_round.is_complete():
                 return        
         trump_suit = random.choice(['k', 'h', 'r', 's'])
-        self.rounds.append(Round(len(self.rounds) % 4, trump_suit))
+        self.rounds.append(Round(self.starting_player, trump_suit))
         self.deal()
     
     def play_game(self):
-        for no_rounds in range(16):
+        for no_rounds in range(1):
             self.start_new_round()
             round = self.rounds[-1]
             starting_player = round.starting_player
@@ -54,9 +55,11 @@ class Game:
         trick = round.tricks[-1]
         trump = round.trump_suit
         legal_moves = round.legal_moves(self.cards[player], player)
+
         for card in legal_moves:
             if card.order(trump) == 7 or card.order(trump) == 15:
                 return card
+
         if len(trick.cards) == 0 or len(trick.cards) == 1:
             return self.get_lowest_card(legal_moves, trump)
 
@@ -92,16 +95,19 @@ wins = 0
 overall_start_time = time.time()
 print('start')
 
-for i in range(100):
-    print(i)
-    game = Game()
+games = [0,0]
+games_won = [0,0]
+for i in range(10000):
+    game = Game(starting_player = i % 2)
     game.play_game()
     if game.score[1] > game.score[0]:
-        wins += 1
+        games_won[i%2] += 1
+    games[i%2] += 1
+    if i%10 == 0:
+        print((games_won[0] + games_won[1]) / (i + 1))
     
 
-    
+print('Games won when started: ', games_won[1]/games[1])
+print('Games won when not started: ', games_won[0]/games[0])    
 print('average time:', (time.time() - overall_start_time) / 500)       
-    
-print(wins)
-print(wins/100)
+
