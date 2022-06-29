@@ -1,5 +1,6 @@
 from rounds import Round
 from deck import Deck
+from Transformation import get_best_card
 
 import random
 import time
@@ -43,7 +44,7 @@ class Game:
             
     def get_card(self, player):
         if player == 1 or player == 3:
-            played_card = self.get_card_good_player(player)
+            played_card = get_best_card(self.rounds[-1], player, self.cards[player])
         else:
             round = self.rounds[-1]
             moves = round.legal_moves(self.cards[player], player)
@@ -51,50 +52,12 @@ class Game:
         self.cards[player].remove(played_card)
         return played_card
 
-    def get_card_good_player(self, player):
-        round = self.rounds[-1]
-        trick = round.tricks[-1]
-        trump = round.trump_suit
-        legal_moves = round.legal_moves(self.cards[player], player)
-        for card in legal_moves:
-            if card.order(trump) == 7 or card.order(trump) == 15:
-                return card
-        if len(trick.cards) == 0 or len(trick.cards) == 1:
-            return self.get_lowest_card(legal_moves, trump)
-
-        elif len(trick.cards) == 2:
-            if trick.cards[0].order(trump) == 7 or trick.cards[0].order(round.trump_suit) == 15:
-                return self.get_highest_card(legal_moves, trump)
-
-            return self.get_lowest_card(legal_moves, trump)
-
-        else:
-            if trick.winner(trump) %2 == 1:
-                return self.get_highest_card(legal_moves, trump)
-            return self.get_lowest_card(legal_moves, trump)
-    
-    def get_lowest_card(self, legal_moves, trump):
-        lowest_points = 21
-        for card in legal_moves:
-            if card.points(trump) < lowest_points:
-                lowest_card = card
-                lowest_points = card.points(trump)
-        return lowest_card
-
-    def get_highest_card(self, legal_moves, trump):
-        highest_points = -1
-        for card in legal_moves:
-            if card.points(trump) > highest_points:
-                highest_card = card
-                highest_points = card.points(trump)
-        return highest_card
-
 overall_start_time = time.time()
 print('start')
 
 games = [0,0]
 games_won = [0,0]
-for i in range(100000):
+for i in range(10000):
     game = Game(starting_player = i % 2)
     game.play_game()
     if game.score[1] > game.score[0]:
