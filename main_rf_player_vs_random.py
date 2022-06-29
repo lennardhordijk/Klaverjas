@@ -6,9 +6,10 @@ import random
 import time
 
 class Game:
-    def __init__(self):
+    def __init__(self, starting_player):
         self.rounds = []
         self.score = [0,0]
+        self.starting_player = starting_player
 
     def deal(self):
         deck = Deck()
@@ -25,10 +26,10 @@ class Game:
         self.deal()
     
     def play_game(self):
-        for no_rounds in range(16):
+        for no_rounds in range(1):
             self.start_new_round()
             round = self.rounds[-1]
-            starting_player = round.starting_player
+            starting_player = self.starting_player
             for i in range(8):
                 if round.tricks:
                     starting_player = round.tricks[-1].starting_player
@@ -51,21 +52,21 @@ class Game:
         self.cards[player].remove(played_card)
         return played_card
 
-wins = 0
-
 overall_start_time = time.time()
 print('start')
 
-for i in range(100):
-    print(i)
-    game = Game()
+games = [0,0]
+games_won = [0,0]
+for i in range(10000):
+    game = Game(starting_player = i % 2)
     game.play_game()
     if game.score[1] > game.score[0]:
-        wins += 1
+        games_won[i%2] += 1
+    games[i%2] += 1
+    if i%10 == 0:
+        print((games_won[0] + games_won[1]) / (i + 1))
     
 
-    
-print('average time:', (time.time() - overall_start_time) / 500)       
-    
-
-print(wins)
+print('Games won when started: ', games_won[1]/games[1])
+print('Games won when not started: ', games_won[0]/games[0])    
+print('average time:', (time.time() - overall_start_time) / 500)  
