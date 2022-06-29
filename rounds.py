@@ -21,6 +21,14 @@ class Round:
         self.hascolor1 = [1,1,1,1]
         self.hascolor2 = [1,1,1,1]
         self.hascolor3 = [1,1,1,1]
+        self.cardsleft = [[i for i in range(7,15)] for j in range(4)]
+        for i in range(4):
+            if ['k', 'h', 'r', 's'][i] == self.trump_suit:
+                order = [8, 9, 14, 12, 15, 10, 11, 13]
+            else:
+                order = [0, 1, 2, 6, 3, 4, 5, 7]
+            ordered_list = [i for _, i in sorted(zip(order, self.cardsleft[i]))]
+            self.cardsleft[i] = ordered_list
     
     def legal_moves(self, hand, player):
         trick = self.tricks[-1]
@@ -69,8 +77,9 @@ class Round:
             self.cardsplayed2.append(card)
         else:
             self.cardsplayed3.append(card)
-        
+        self.cardsleft[['k', 'h', 'r', 's'].index(card.suit)].remove(card.value)
 
+        
     def to_play(self):
         return self.tricks[-1].to_play()
     
@@ -106,3 +115,9 @@ class Round:
             if team(self.starting_player) != team(trick.winner(self.trump_suit)):
                 return False
         return True
+
+    def get_highest_card(self, suit):
+        return self.cardsleft[['k', 'h', 'r', 's'].index(suit)][-1]
+    
+    def get_number_of_cards_suit(self, suit):
+        return len(self.cardsleft[['k', 'h', 'r', 's'].index(suit)])
