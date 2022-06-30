@@ -1,10 +1,3 @@
-from rounds import Round
-from deck import Deck
-from Transformation import get_best_card
-
-import random
-import time
-
 class Game:
     def __init__(self, starting_player):
         self.rounds = []
@@ -55,23 +48,47 @@ class Game:
         trick = round.tricks[-1]
         trump = round.trump_suit
         legal_moves = round.legal_moves(self.cards[player], player)
+        cant_follow = 0
 
-        for card in legal_moves:
-            if card.order(trump) == 7 or card.order(trump) == 15:
-                return card
-
-        if len(trick.cards) == 0 or len(trick.cards) == 1:
+        if len(trick.cards) == 0:
+            for card in legal_moves:
+                if card.value == round.get_highest_card(card.suit):
+                    return card
             return self.get_lowest_card(legal_moves, trump)
 
+        if legal_moves[0].suit == trick.cards[0].suit:
+            cant_follow = 1
+            
+        elif len(trick.cards) == 1:
+            for card in legal_moves:
+                if card.value == round.get_highest_card(trick.cards[0].suit):
+                    return card
+            return self.get_lowest_card(legal_moves, trump)
+                
+
         elif len(trick.cards) == 2:
-            if trick.cards[0].order(trump) == 7 or trick.cards[0].order(round.trump_suit) == 15:
+            if cant_follow:
+                return self.get_lowest_card(legal_moves, trump)
+
+            if trick.cards[0].value == round.get_highest_card(trick.cards[0].suit):
                 return self.get_highest_card(legal_moves, trump)
+
+
+            for card in legal_moves:
+                if card.value == round.get_highest_card(trick.cards[0].suit):
+                    return card
 
             return self.get_lowest_card(legal_moves, trump)
 
         else:
             if trick.winner(trump) %2 == 1:
                 return self.get_highest_card(legal_moves, trump)
+
+            highest = trick.highest_card(trump)
+            for card in legal_moves:
+                if card.order > highest.order:
+                    return card
+
             return self.get_lowest_card(legal_moves, trump)
     
     def get_lowest_card(self, legal_moves, trump):
@@ -89,6 +106,13 @@ class Game:
                 highest_card = card
                 highest_points = card.points(trump)
         return highest_card
+
+    def has_trump_cards(cards, trump):
+        no_of_trumps = 0
+        for card in cards:
+            if card.suit == trump:
+                no_of_trumps += 1
+        return no_of_trumps
 
 wins = 0
 
@@ -109,5 +133,4 @@ for i in range(10000):
 
 print('Games won when started: ', games_won[1]/games[1])
 print('Games won when not started: ', games_won[0]/games[0])    
-print('average time:', (time.time() - overall_start_time) / 500)       
-
+print('average time:', (time.time() - overall_start_time) / 500) 
