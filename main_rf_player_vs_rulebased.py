@@ -56,7 +56,6 @@ class Game:
         trump = round.trump_suit
         legal_moves = round.legal_moves(self.cards[player], player)
         cant_follow = 0
-
         if len(trick.cards) == 0:
             for card in legal_moves:
                 if card.value == round.get_highest_card(card.suit):
@@ -66,14 +65,14 @@ class Game:
         if legal_moves[0].suit == trick.cards[0].suit:
             cant_follow = 1
             
-        elif len(trick.cards) == 1:
+        if len(trick.cards) == 1:
             for card in legal_moves:
                 if card.value == round.get_highest_card(trick.cards[0].suit):
                     return card
             return self.get_lowest_card(legal_moves, trump)
                 
 
-        elif len(trick.cards) == 2:
+        if len(trick.cards) == 2:
             if cant_follow:
                 return self.get_lowest_card(legal_moves, trump)
 
@@ -88,6 +87,7 @@ class Game:
             return self.get_lowest_card(legal_moves, trump)
 
         else:
+            
             if trick.winner(trump) %2 == 1:
                 return self.get_highest_card(legal_moves, trump)
 
