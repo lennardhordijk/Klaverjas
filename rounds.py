@@ -77,7 +77,7 @@ class Round:
             self.cardsplayed2.append(card)
         else:
             self.cardsplayed3.append(card)
-        self.cardsleft[['k', 'h', 'r', 's'].index(card.suit)].remove(card.value)
+
 
         
     def to_play(self):
@@ -86,6 +86,8 @@ class Round:
     def complete_trick(self):
         trick = self.tricks[-1]
         if trick.is_complete():
+            for card in trick.cards:
+                self.cardsleft[['k', 'h', 'r', 's'].index(card.suit)].remove(card.value)
             winner = trick.winner(self.trump_suit)
             points = trick.points(self.trump_suit)
             meld = trick.meld(self.trump_suit)

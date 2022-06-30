@@ -102,11 +102,42 @@ def check_can_create_street(center, cards):
             cards_to_create_street.append(card)
     return int(len(cards_to_create_street) > 0), cards_to_create_street
 
+def get_rank_cards(cards, trump):
+    ranks = []
+    for card in cards:
+        ranks.append(card.order(trump))
+    return ranks
+
+def current_player_has_suit(cards, suit):
+    for card in cards:
+        if card.suit == suit:
+            return 1
+    return 0
+
+def get_suit_center(center, trump):
+    suits = [0 for i in range(8)]
+    str_center = ''
+    if len(center) > 0:
+        if center[0].suit == trump:
+            suits[0] = 1
+        else:
+            suits[1] = 1 
+    for i in range(1,len(center)):
+        if center[i].suit == center[0].suit:
+            suits[i *3] = 1
+        elif center[i].suit == trump:
+            suits[i*3 + 1] = 1
+        else:
+            suits[i*3 - 1] = 0
+    return suits
+
+
 def get_best_card(round, player, hand):
     trick = round.tricks[-1]
     trump = round.trump_suit
     center = trick.cards
     legal_moves = round.legal_moves(hand, player)
+     
     if len(center) > 0:
         highest_card = trick.highest_card(trump)
     all_cards_played = get_played_cards(round.cardsplayed0, round.cardsplayed1, round.cardsplayed2, round.cardsplayed3)
@@ -136,7 +167,6 @@ def get_best_card(round, player, hand):
             else:
                 still_in_game.append(1)
     data.extend([still_in_game, has_second_highest_suit, has_highest_suit])
-    
     if len(center) > 0:
         if player == 1:
             has_suit = player_has_suit(round.hascolor2, round.hascolor3, round.hascolor0, center[0].suit)
@@ -198,6 +228,8 @@ def get_best_card(round, player, hand):
         player_suit = [1, 0, 0]
     for i in range(3):
         data.append(player_suit[i])
+    
+
 
     turn = get_turn(center)
     for i in range(4):
@@ -206,15 +238,32 @@ def get_best_card(round, player, hand):
     index = [x for x in range(no_moves)]
     data.append(index)
 
+    for i in range(3):
+        if len(center) > i:
+            data.append(center[i].order(trump))
+        else:
+            data.append(0)
+
+    data.append(current_player_has_suit(legal_moves, trump))
+    if len(center) > 0:
+        data.append(current_player_has_suit(legal_moves, center[0].suit))
+    else:
+        data.append(1)
+
+    suits_center = get_suit_center(center, trump)
+    for bit in suits_center:
+        data.append(bit)
+
     dataframe = pd.DataFrame([data], columns = ['empty_center', 'trump_asked', 'other_suit_asked', 'Still_in_game', 'Has_second_highest_suit', 
     'Has_highest_suit', 'Player1_has_suit', 'Player2_has_suit', 'Player3_has_suit', 'Player1_has_trump', 'Player2_has_trump',
-    'Player3_has_trump', 'Has_higher', 'No_playable_cards', 'Teammate_winning', 'Teammate_played', 'Can_create_street', 'p_none', 'p_s', 'p_t', 'first_turn', 'second_turn', 
-    'third_turn', 'last_turn', 'index'])
+    'Player3_has_trump', 'Has_higher', 'No_playable_cards', 'Teammate_winning', 'Teammate_played', 'Can_create_street', 'p_none', 'p_s', 'p_t', 
+    'first_turn', 'second_turn', 'third_turn', 'last_turn', 'index', 'Rank_card1', 'Rank_card2', 'Rank_card3', 'Has_trump', 'Has_suit', 
+    '1_t', '1_nt', '2_n', '2_s', '2_t', '3_n', '3_s', '3_t'])
     
-
     dataframe = dataframe.set_index(['empty_center', 'trump_asked', 'other_suit_asked', 'Player1_has_trump', 'Player2_has_trump',
     'Player3_has_trump', 'Has_higher', 'No_playable_cards', 'Teammate_winning', 'Teammate_played', 'first_turn', 'second_turn', 
-    'third_turn', 'last_turn', 'Can_create_street']).apply(pd.Series.explode).reset_index()
+    'third_turn', 'last_turn', 'Can_create_street', 'Rank_card1', 'Rank_card2', 'Rank_card3', 'Has_trump', 'Has_suit', 
+    '1_t', '1_nt', '2_n', '2_s', '2_t', '3_n', '3_s', '3_t']).apply(pd.Series.explode).reset_index()
 
     
     is_higher = []
@@ -263,12 +312,15 @@ def get_best_card(round, player, hand):
     dataframe['Is_lowest_value'] = is_lowest_value
     dataframe['Is_highest_value'] = is_highest_value
     dataframe['Creates_street'] = creates_street_all
+    
+
+    dataframe['rank_player_card'] = get_rank_cards(legal_moves, trump)
     dataframe.drop('index', inplace=True, axis=1)
-    dataframe = dataframe[['empty_center', 'trump_asked', 'other_suit_asked', 'Still_in_game', 'Is_second_highest_suit', 'Is_highest_suit', 
-    'Has_second_highest_suit', 'Has_highest_suit', 'Player1_has_suit', 'Player2_has_suit', 'Player3_has_suit', 'Player1_has_trump', 
-    'Player2_has_trump','Player3_has_trump', 'Is_higher', 'Has_higher', 'No_playable_cards', 'Is_lowest_value', 'Is_highest_value', 
-    'Teammate_winning', 'Teammate_played', 'Can_create_street', 'Creates_street', 'p_none', 'p_s', 'p_t', 'first_turn', 'second_turn', 
-    'third_turn', 'last_turn']]
+    dataframe = dataframe[['rank_player_card', 'Rank_card1', 'Rank_card2', 'Rank_card3', 'Has_trump', '2_n', '2_s', '2_t', '3_n', '3_s', '3_t', 
+    'Has_suit', '1_t', '1_nt', 'Still_in_game', 'Is_second_highest_suit', 'Is_highest_suit', 'Has_second_highest_suit', 'Has_highest_suit',
+    'Player1_has_suit', 'Player2_has_suit', 'Player3_has_suit', 'Player1_has_trump', 'Player2_has_trump','Player3_has_trump', 'Is_higher', 
+    'Has_higher', 'No_playable_cards', 'Is_lowest_value', 'Is_highest_value', 'Teammate_winning', 'Teammate_played', 'Can_create_street', 
+    'Creates_street', 'p_none', 'p_s', 'p_t', 'first_turn', 'second_turn', 'third_turn', 'last_turn']]
 
     predictions = random_forest.predict_proba(dataframe)
     highest_prob = 0
