@@ -93,7 +93,7 @@ class Game:
 
             highest = trick.highest_card(trump)
             for card in legal_moves:
-                if card.order > highest.order:
+                if card.order(trump) > highest.order(trump):
                     return card
 
             return self.get_lowest_card(legal_moves, trump)
