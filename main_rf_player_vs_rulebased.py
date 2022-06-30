@@ -1,4 +1,3 @@
-from imaplib import _CommandResults
 from rounds import Round
 from deck import Deck
 from Transformation import get_best_card
