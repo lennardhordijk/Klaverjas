@@ -444,60 +444,60 @@ target = rotterdam_data['Is_played_card']
 
 mean_percentages = [0 for i in range(8)]
 
-for i in range(1):
-    print(i)
-    #Split the dataset into 
-    attributes_train, attributes_test, target_train, target_test = train_test_split(attributes, target, test_size=0.25)
 
-    #Train a classifier on the dataset
-    rf = RandomForestClassifier()
-    rf = rf.fit(attributes_train, target_train)
-    predictions = rf.predict_proba(attributes)
+print(i)
+#Split the dataset into 
+attributes_train, attributes_test, target_train, target_test = train_test_split(attributes, target, test_size=0.25)
 
-    predictions = list(map(get_second_element, predictions))
+#Train a classifier on the dataset
+rf = RandomForestClassifier()
+rf = rf.fit(attributes_train, target_train)
+predictions = rf.predict_proba(attributes)
 
-    rotterdam_data['Prediction'] = predictions
+predictions = list(map(get_second_element, predictions))
 
-    already_checked = [False for i in rotterdam_data.index]
+rotterdam_data['Prediction'] = predictions
 
-    percentages = {}
-    for i in range(1,9):
-        percentages['playable_cards{}'.format(i)] = 0
-        percentages['playable_cards{}_good'.format(i)] = 0
+already_checked = [False for i in rotterdam_data.index]
 
-    rotterdam_data['Chosen_card'] = np.nan
+percentages = {}
+for i in range(1,9):
+    percentages['playable_cards{}'.format(i)] = 0
+    percentages['playable_cards{}_good'.format(i)] = 0
 
-    for index in rotterdam_data.index:
-        checked = already_checked[index]
+rotterdam_data['Chosen_card'] = np.nan
 
-        if checked:
-            continue
-        
-        no_cards = rotterdam_data['No_playable_cards'][index]
-        
-        #Get the card with the highest probability of being played for each hand
-        highest_prediction = 0
-        for i in range(no_cards):
-            already_checked[index + i] = True
-            prediction = rotterdam_data['Prediction'][index + i]
-            if prediction > highest_prediction:
-                highest_prediction = prediction
-                best_card = rotterdam_data['Cards'][index + i][0]
-        rotterdam_data.at[index, 'Chosen_card'] = best_card
-        percentages['playable_cards{}'.format(no_cards)] += 1
-        
-        if rotterdam_data['PlayCard'][index] == rotterdam_data['Chosen_card'][index]:
-            percentages['playable_cards{}_good'.format(no_cards)] += 1
-        # else:
-        #     for i in range(no_cards):
-        #         print(rotterdam_data.loc[index + i])
-    no_cards = 0
-    no_good_cards = 0
-    for i in range(1,9):
-        percentage = (percentages['playable_cards{}_good'.format(i)]/percentages['playable_cards{}'.format(i)]) * 100
-        mean_percentages[i- 1] += percentage
-        no_cards += percentages['playable_cards{}'.format(i)]
-        no_good_cards += percentages['playable_cards{}_good'.format(i)]
+for index in rotterdam_data.index:
+    checked = already_checked[index]
+
+    if checked:
+        continue
+
+    no_cards = rotterdam_data['No_playable_cards'][index]
+
+    #Get the card with the highest probability of being played for each hand
+    highest_prediction = 0
+    for i in range(no_cards):
+        already_checked[index + i] = True
+        prediction = rotterdam_data['Prediction'][index + i]
+        if prediction > highest_prediction:
+            highest_prediction = prediction
+            best_card = rotterdam_data['Cards'][index + i][0]
+    rotterdam_data.at[index, 'Chosen_card'] = best_card
+    percentages['playable_cards{}'.format(no_cards)] += 1
+
+    if rotterdam_data['PlayCard'][index] == rotterdam_data['Chosen_card'][index]:
+        percentages['playable_cards{}_good'.format(no_cards)] += 1
+    # else:
+    #     for i in range(no_cards):
+    #         print(rotterdam_data.loc[index + i])
+no_cards = 0
+no_good_cards = 0
+for i in range(1,9):
+    percentage = (percentages['playable_cards{}_good'.format(i)]/percentages['playable_cards{}'.format(i)]) * 100
+    mean_percentages[i- 1] += percentage
+    no_cards += percentages['playable_cards{}'.format(i)]
+    no_good_cards += percentages['playable_cards{}_good'.format(i)]
 
 for i in range(8):
     mean_percentages[i] = mean_percentages[i]/1
