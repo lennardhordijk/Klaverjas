@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from matplotlib import pyplot as plt
 
+#See deck.py
 class Card:
     def __init__(self, card):
         self.suit = card[0]
@@ -488,9 +489,7 @@ for index in rotterdam_data.index:
 
     if rotterdam_data['PlayCard'][index] == rotterdam_data['Chosen_card'][index]:
         percentages['playable_cards{}_good'.format(no_cards)] += 1
-    # else:
-    #     for i in range(no_cards):
-    #         print(rotterdam_data.loc[index + i])
+
 no_cards = 0
 no_good_cards = 0
 for i in range(1,9):

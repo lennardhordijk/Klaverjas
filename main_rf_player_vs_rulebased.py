@@ -1,4 +1,4 @@
-from rounds import Round
+from rounds_rotterdam import Round
 from deck import Deck
 from Transformation import get_best_card
 
@@ -11,11 +11,13 @@ class Game:
         self.score = [0,0]
         self.starting_player = starting_player
 
+    #Gives each player 8 cards to play with
     def deal(self):
         deck = Deck()
         deck.shuffle()
         self.cards = [deck.cards[0:8], deck.cards[8:16], deck.cards[16:24], deck.cards[24:32]]
 
+    #Starts a new round
     def start_new_round(self):
         if self.rounds:
             last_round = self.rounds[-1]
@@ -25,6 +27,7 @@ class Game:
         self.rounds.append(Round(self.starting_player, trump_suit))
         self.deal()
     
+    #Plays a game of Klaverjas. Currently a game conists of 1 round
     def play_game(self):
         for no_rounds in range(1):
             self.start_new_round()
@@ -41,7 +44,8 @@ class Game:
                
             self.score[0] += self.rounds[-1].points[0]
             self.score[1] += self.rounds[-1].points[1]
-            
+    
+    #Determines the card to play for a player based on the strategy of that player
     def get_card(self, player):
         if player == 1 or player == 3:
             played_card = get_best_card(self.rounds[-1], player, self.cards[player])
@@ -50,6 +54,7 @@ class Game:
         self.cards[player].remove(played_card)
         return played_card
 
+    #Returns the card for the rule-based player
     def get_card_good_player(self, player):
         round = self.rounds[-1]
         trick = round.tricks[-1]
@@ -121,23 +126,23 @@ class Game:
                 no_of_trumps += 1
         return no_of_trumps
 
-wins = 0
-
-overall_start_time = time.time()
-print('start')
-
 games = [0,0]
 games_won = [0,0]
-for i in range(10000):
-    game = Game(starting_player = i % 2)
-    game.play_game()
-    if game.score[1] > game.score[0]:
-        games_won[i%2] += 1
-    games[i%2] += 1
-    if i%10 == 0:
-        print((games_won[0] + games_won[1]) / (i + 1))
-    
 
+rounds = pd.read_csv('Rounds.csv')
+points = []
+#Simulates the 10000 pre-generated games
+for index in rounds.index:
+    game = Game(rounds['0'].iloc[index], rounds['1'].iloc[index], rounds['2'].iloc[index])
+    game.play_game()
+    starting_player = game.starting_player
+    if game.score[1] > game.score[0]:
+        games_won[starting_player] += 1
+    games[starting_player % 2] += 1
+    points.append(game.score)
+    if index%10 == 0:
+        print(index/5000, (games_won[0] + games_won[1]) / (index + 1))
+    
 print('Games won when started: ', games_won[1]/games[1])
 print('Games won when not started: ', games_won[0]/games[0])    
-print('average time:', (time.time() - overall_start_time) / 500) 
+print(games_won)

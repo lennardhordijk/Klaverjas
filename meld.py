@@ -25,7 +25,7 @@ for value in values:
     meld_100.append({Card(value, suit) for suit in suits})
 
 
-
+#Checks whether there are meld points on the board
 def meld_points(trick, trump_suit):
     for meld in meld_100:
         if meld <= set(trick):
@@ -44,6 +44,7 @@ def meld_points(trick, trump_suit):
             return points + 20
     return points
 
+#Checks whether a street can be made
 def check_possible_street(center, card):
     center.append(card)
     for meld in meld_20:

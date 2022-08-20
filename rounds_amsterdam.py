@@ -30,6 +30,7 @@ class Round:
             ordered_list = [i for _, i in sorted(zip(order, self.cardsleft[i]))]
             self.cardsleft[i] = ordered_list
     
+    #Returns the legal moves a player could make based on the current hand and played cards
     def legal_moves(self, hand, player):
         trick = self.tricks[-1]
         leading_suit = trick.leading_suit()
@@ -55,7 +56,7 @@ class Round:
             return follow
 
         
-        
+        #If a player can't follow, the hassuit of that player is set to 0
         if player == 0:
             self.hascolor0[['k', 'h', 'r', 's'].index(leading_suit)] = 0
         elif player == 1:
@@ -69,9 +70,11 @@ class Round:
 
         return trump_higher or trump or hand   
     
+    #Checks whether the round is complete
     def is_complete(self):
         return len(self.tricks) == 8 and self.tricks[-1].is_complete()
 
+    #Plays the card in a trick
     def play_card(self, card, player):
         self.tricks[-1].add_card(card)
         if player == 0:
@@ -83,10 +86,11 @@ class Round:
         else:
             self.cardsplayed3.append(card)
 
-
+    #Returns the player currently at turn
     def to_play(self):
         return self.tricks[-1].to_play()
     
+    #Checks whether the trick is complete and handles all variables
     def complete_trick(self):
         trick = self.tricks[-1]
         if trick.is_complete():
@@ -116,6 +120,7 @@ class Round:
             return True
         return False
 
+    #Checks whether all tricks are won by one team
     def is_pit(self):
         for trick in self.tricks:
             if team(self.starting_player) != team(trick.winner(self.trump_suit)):

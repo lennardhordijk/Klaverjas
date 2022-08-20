@@ -7,6 +7,7 @@ suits = ['k', 'h', 'r', 's']
 
 random_forest = joblib.load("./played_card_prediction.joblib")
 
+#Returns a list that represents the suit that is asked
 def get_asked_suit(center, trump):
     if not center:
         return [1, 0, 0]
@@ -15,9 +16,11 @@ def get_asked_suit(center, trump):
     else: 
         return [0, 0, 1]
 
+#Returns a int representing the current turn of the player
 def get_turn(center):
     return [1 if x == len(center) else 0 for x in range(4)]
 
+#Returns a string representing whether the other players have a suit or not
 def player_has_suit(has_suit0, has_suit1, has_suit2, suit):
     suit_index = suits.index(suit)
     has_suit0 = has_suit0[suit_index]
@@ -25,6 +28,7 @@ def player_has_suit(has_suit0, has_suit1, has_suit2, suit):
     has_suit2 = has_suit2[suit_index]
     return [has_suit0, has_suit1, has_suit2]
 
+#Return the cards and number of cards that are higher than the current played cards
 def check_has_higher(highest, moves, leading_suit, trump):
     higher_cards = []
     for card in moves:
@@ -34,6 +38,7 @@ def check_has_higher(highest, moves, leading_suit, trump):
             higher_cards.append(card)
     return higher_cards, int(len(higher_cards) > 0)  
 
+#Returns a list representing the player suit
 def get_player_suit(center, card, trump):
     if card.suit == trump:
         return [0, 0, 1]
@@ -42,6 +47,7 @@ def get_player_suit(center, card, trump):
             return [0, 1, 0]
     return [1, 0, 0]    
 
+#Returns a list of all the already played cards sorted by suit
 def get_played_cards(cardsplayed0, cardsplayed1, cardsplayed2, cardsplayed3):
     dictionary = {'cardsplayed0': cardsplayed0, 'cardsplayed1': cardsplayed1, 'cardsplayed2': cardsplayed2, 'cardsplayed3': cardsplayed3}
     played_cards = [[],[],[],[]]
@@ -51,6 +57,7 @@ def get_played_cards(cardsplayed0, cardsplayed1, cardsplayed2, cardsplayed3):
             played_cards[index].append(card)
     return played_cards
 
+#Returns the highest and second highest card that are left of each suit of the game
 def get_highest_cards(cardsplayed):
     highest_cards = []
     for i in range(4):
@@ -64,6 +71,7 @@ def get_highest_cards(cardsplayed):
             highest_cards.append([])
     return highest_cards
 
+#Checks whether the player has the highest or second highest card
 def check_has_card(cards, suit, highest_cards, order):
     index = suits.index(suit)
     try:
@@ -73,7 +81,8 @@ def check_has_card(cards, suit, highest_cards, order):
         return 0
     except:
         return 0
-    
+
+#Checks whether the highest card is still in the game
 def check_in_game(center, highest_cards):
     index = suits.index(center[0].suit)
     try:
@@ -85,6 +94,7 @@ def check_in_game(center, highest_cards):
     except:
         return 1
 
+#Checks whether this card is the highest or second highest card
 def check_is_card(highest_cards, card, order):
     index = suits.index(card.suit)
     try:
@@ -94,6 +104,7 @@ def check_is_card(highest_cards, card, order):
     except:
         return 0
 
+#Checks whether the player has a card that is able to create a street
 def check_can_create_street(center, cards):
     cards_to_create_street = []
     for card in cards:
@@ -102,18 +113,21 @@ def check_can_create_street(center, cards):
             cards_to_create_street.append(card)
     return int(len(cards_to_create_street) > 0), cards_to_create_street
 
+#Transforms all cards into ranks
 def get_rank_cards(cards, trump):
     ranks = []
     for card in cards:
         ranks.append(card.order(trump))
     return ranks
 
+#Checks whether the current player has a suit
 def current_player_has_suit(cards, suit):
     for card in cards:
         if card.suit == suit:
             return 1
     return 0
 
+#Returns a list representing the suits of the already played cards
 def get_suit_center(center, trump):
     suits = [0 for i in range(8)]
     str_center = ''
@@ -131,7 +145,8 @@ def get_suit_center(center, trump):
             suits[i*3 - 1] = 0
     return suits
 
-
+#Determines the best card to play. This is done by creating a dataframe that is feeded into a previously created random forest. In this way the 
+#card with the highest probability to be the best card is chosen.
 def get_best_card(round, player, hand):
     trick = round.tricks[-1]
     trump = round.trump_suit
